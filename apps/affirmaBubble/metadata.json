@@ -1,0 +1,12 @@
+{
+  "id": "affirmaBubble",
+  "name": "Affirmations in Blue",
+  "shortName": "affirmaBubble",
+  "icon": "app.png",
+  "version": "0.01",
+  "description": "Affirmations on a blue background",
+  "tags": "tools",
+  "storage": [
+    {"name": "affirmaBubble.app.js", "url": "app.js"}
+  ]
+}
