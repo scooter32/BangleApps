@@ -203,15 +203,15 @@ function drawMainScreen() {
     g.setFontAlign(0, 0);
     
     // High
-    g.drawString("High: " + formatTemp(highLow.high.temp), 88, 110);
+    g.drawString("High: " + formatTemp(highLow.high.temp), 88, 85);
     g.setFont("6x8", 1);
-    g.drawString("at " + formatTime(highLow.high.time), 88, 130);
+    g.drawString("at " + formatTime(highLow.high.time), 88, 105);
     
     // Low
     g.setFont("6x8", 2);
-    g.drawString("Low: " + formatTemp(highLow.low.temp), 88, 155);
+    g.drawString("Low: " + formatTemp(highLow.low.temp), 88, 130);
     g.setFont("6x8", 1);
-    g.drawString("at " + formatTime(highLow.low.time), 88, 175);
+    g.drawString("at " + formatTime(highLow.low.time), 88, 150);
   }
 }
 
