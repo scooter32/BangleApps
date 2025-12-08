@@ -44,18 +44,30 @@ function formatHour(date) {
 // Get current temperature
 function getCurrentTemp() {
   // Bangle.js 2 gets temperature from pressure sensor
-  return toFahrenheit(Bangle.getPressure().temperature);
+  try {
+    const pressure = Bangle.getPressure();
+    if (pressure && pressure.temperature !== undefined) {
+      return toFahrenheit(pressure.temperature);
+    }
+  } catch (e) {
+    // Sensor not ready yet
+  }
+  return null; // Return null if no valid reading
 }
 
 // Log temperature reading
 function logTemp() {
   const now = new Date();
   const temp = getCurrentTemp();
-  tempLog.push({time: now.getTime(), temp: temp});
   
-  // Keep only last 24 hours of data
-  const cutoff = now.getTime() - (24 * 60 * 60 * 1000);
-  tempLog = tempLog.filter(entry => entry.time >= cutoff);
+  // Only log if we have a valid temperature
+  if (temp !== null) {
+    tempLog.push({time: now.getTime(), temp: temp});
+    
+    // Keep only last 24 hours of data
+    const cutoff = now.getTime() - (24 * 60 * 60 * 1000);
+    tempLog = tempLog.filter(entry => entry.time >= cutoff);
+  }
   
   // Redraw if on main screen
   if (currentView === 'main') {
@@ -144,7 +156,7 @@ function getFifteenMinuteReadings(hourDate) {
 
 // Turn on backlight with timeout
 function activateBacklight() {
-  Bangle.setLCDPower(1);
+  Bangle.setLCDBrightness(1); // Turn on backlight
   
   // Clear existing timer
   if (backlightTimer) {
@@ -153,7 +165,7 @@ function activateBacklight() {
   
   // Set new timer to turn off backlight
   backlightTimer = setTimeout(() => {
-    Bangle.setLCDPower(0);
+    Bangle.setLCDBrightness(0); // Turn off backlight but screen stays on
   }, BACKLIGHT_TIMEOUT);
 }
 
@@ -171,7 +183,12 @@ function drawMainScreen() {
   g.drawString("Current:", 88, 30);
   
   g.setFont("6x8", 4);
-  g.drawString(formatTemp(currentTemp), 88, 65);
+  if (currentTemp !== null) {
+    g.drawString(formatTemp(currentTemp), 88, 65);
+  } else {
+    g.setFont("6x8", 2);
+    g.drawString("Reading...", 88, 65);
+  }
   
   // High and Low
   if (highLow) {
