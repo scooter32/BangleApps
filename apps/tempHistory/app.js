@@ -177,23 +177,23 @@ function drawMainScreen() {
   
   const highLow = getHighLow();
   
-  // Current temperature (large)
-  g.setFont("6x8", 3);
+  // Current temperature (smaller to fit everything)
+  g.setFont("6x8", 2);
   g.setFontAlign(0, 0);
-  g.drawString("Current:", 88, 30);
+  g.drawString("Current:", 88, 25);
   
   // Show "Reading..." while waiting for temperature
   g.setFont("6x8", 2);
-  g.drawString("Reading...", 88, 65);
+  g.drawString("Reading...", 88, 50);
   
   // Get current temperature asynchronously
   getCurrentTemp(currentTemp => {
     if (currentTemp !== null) {
       // Clear the "Reading..." text and draw actual temperature
-      g.clearRect(20, 50, 156, 80);
-      g.setFont("6x8", 4);
+      g.clearRect(20, 40, 156, 70);
+      g.setFont("6x8", 3);
       g.setFontAlign(0, 0);
-      g.drawString(formatTemp(currentTemp), 88, 65);
+      g.drawString(formatTemp(currentTemp), 88, 55);
     }
   });
   
