@@ -41,38 +41,39 @@ function formatHour(date) {
   return hours + ':00 ' + ampm;
 }
 
-// Get current temperature
-function getCurrentTemp() {
-  // Bangle.js 2 gets temperature from pressure sensor
-  try {
-    const pressure = Bangle.getPressure();
+// Get current temperature (asynchronous)
+function getCurrentTemp(callback) {
+  // Bangle.js 2 gets temperature from pressure sensor (returns a Promise)
+  Bangle.getPressure().then(pressure => {
     if (pressure && pressure.temperature !== undefined) {
-      return toFahrenheit(pressure.temperature);
+      callback(toFahrenheit(pressure.temperature));
+    } else {
+      callback(null);
     }
-  } catch (e) {
-    // Sensor not ready yet
-  }
-  return null; // Return null if no valid reading
+  }).catch(() => {
+    callback(null);
+  });
 }
 
 // Log temperature reading
 function logTemp() {
   const now = new Date();
-  const temp = getCurrentTemp();
   
-  // Only log if we have a valid temperature
-  if (temp !== null) {
-    tempLog.push({time: now.getTime(), temp: temp});
+  getCurrentTemp(temp => {
+    // Only log if we have a valid temperature
+    if (temp !== null) {
+      tempLog.push({time: now.getTime(), temp: temp});
+      
+      // Keep only last 24 hours of data
+      const cutoff = now.getTime() - (24 * 60 * 60 * 1000);
+      tempLog = tempLog.filter(entry => entry.time >= cutoff);
+    }
     
-    // Keep only last 24 hours of data
-    const cutoff = now.getTime() - (24 * 60 * 60 * 1000);
-    tempLog = tempLog.filter(entry => entry.time >= cutoff);
-  }
-  
-  // Redraw if on main screen
-  if (currentView === 'main') {
-    drawMainScreen();
-  }
+    // Redraw if on main screen
+    if (currentView === 'main') {
+      drawMainScreen();
+    }
+  });
 }
 
 // Get high/low temps from last 24 hours
@@ -174,7 +175,6 @@ function drawMainScreen() {
   g.clear();
   currentView = 'main';
   
-  const currentTemp = getCurrentTemp();
   const highLow = getHighLow();
   
   // Current temperature (large)
@@ -182,13 +182,20 @@ function drawMainScreen() {
   g.setFontAlign(0, 0);
   g.drawString("Current:", 88, 30);
   
-  g.setFont("6x8", 4);
-  if (currentTemp !== null) {
-    g.drawString(formatTemp(currentTemp), 88, 65);
-  } else {
-    g.setFont("6x8", 2);
-    g.drawString("Reading...", 88, 65);
-  }
+  // Show "Reading..." while waiting for temperature
+  g.setFont("6x8", 2);
+  g.drawString("Reading...", 88, 65);
+  
+  // Get current temperature asynchronously
+  getCurrentTemp(currentTemp => {
+    if (currentTemp !== null) {
+      // Clear the "Reading..." text and draw actual temperature
+      g.clearRect(20, 50, 156, 80);
+      g.setFont("6x8", 4);
+      g.setFontAlign(0, 0);
+      g.drawString(formatTemp(currentTemp), 88, 65);
+    }
+  });
   
   // High and Low
   if (highLow) {
@@ -276,25 +283,6 @@ function onButton() {
   }
 }
 
-// Handle long button press (clear data)
-function onLongPress() {
-  activateBacklight();
-  
-  // Clear all data
-  tempLog = [];
-  
-  // Return to main screen
-  drawMainScreen();
-  
-  // Visual feedback
-  g.setFont("6x8", 2);
-  g.setFontAlign(0, 0);
-  g.drawString("Data Cleared", 88, 88);
-  setTimeout(() => {
-    drawMainScreen();
-  }, 1500);
-}
-
 // Handle touch
 function onTouch(button, xy) {
   activateBacklight();
@@ -326,9 +314,8 @@ function init() {
   // Clear screen
   g.clear();
   
-  // Set up button handlers
+  // Set up button handler (short press only)
   setWatch(onButton, BTN, {repeat: true, edge: "falling"});
-  setWatch(onLongPress, BTN, {repeat: true, edge: "falling", debounce: 50});
   
   // Set up touch handler
   Bangle.on('touch', onTouch);
