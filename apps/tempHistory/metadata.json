@@ -3,7 +3,7 @@
   "name": "Temperature History Log and Display",
   "shortName": "tempHistory",
   "icon": "app.png",
-  "version": "0.03",
+  "version": "0.04",
   "description": "Temperature logger. Records temperature every 15 minutes with 24-hour high/low tracking.",
   "tags": "tools",
   "storage": [
