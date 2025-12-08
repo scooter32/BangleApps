@@ -1,1 +1,16 @@
-
+{
+  "id": "tenttemp",
+  "name": "Tent Temp Logger",
+  "shortName": "TentTemp",
+  "icon": "app.png",
+  "version": "0.01",
+  "description": "Temperature logger for camping. Records temperature every 15 minutes with 24-hour high/low tracking.",
+  "tags": "tool,outdoors,camping",
+  "storage": [
+    {
+      "name": "tenttemp.app.js",
+      "url": "app.js"
+    }
+  ],
+  "readme": "README.md"
+}
