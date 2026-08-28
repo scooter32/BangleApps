@@ -1,1 +1,12 @@
-
+{
+  "id": "pageturner",
+  "name": "Page Turner",
+  "shortName": "PageTurner",
+  "icon": "app.png",
+  "version": "0.01",
+  "description": "Swipe and button page turner over Bluetooth HID",
+  "tags": "tools,bluetooth",
+  "storage": [
+    {"name": "pageturner.app.js", "url": "app.js"}
+  ]
+}
